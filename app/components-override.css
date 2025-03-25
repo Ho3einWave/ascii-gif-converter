@@ -1,0 +1,46 @@
+/* Custom styles for the Select component */
+.select-content {
+  background-color: #18181b !important;
+  border-radius: 0 !important;
+  border-color: #3f3f46 !important;
+  overflow: hidden !important;
+}
+
+.select-item {
+  border-radius: 0 !important;
+  font-family: monospace !important;
+}
+
+.select-item[data-highlighted] {
+  background-color: #27272a !important;
+  color: #ffffff !important;
+}
+
+.select-item:focus {
+  background-color: #27272a !important;
+  color: #ffffff !important;
+}
+
+.select-item:hover {
+  background-color: #27272a !important;
+  color: #ffffff !important;
+}
+
+.select-trigger {
+  border-radius: 0 !important;
+  font-family: monospace !important;
+}
+
+.select-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.select-content::-webkit-scrollbar-track {
+  background: #18181b;
+}
+
+.select-content::-webkit-scrollbar-thumb {
+  background-color: #3f3f46;
+  border-radius: 0;
+}
+
