@@ -3,6 +3,9 @@
 import type React from "react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import {
     Dialog,
     DialogContent,
@@ -17,33 +20,55 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { X, AlertCircle } from "lucide-react";
 import { useAsciiConverterStore } from "@/lib/store/ascii-converter-store";
-import { useCommunityStore } from "@/lib/store/community-store";
+import { useSubmitArt } from "@/hooks/use-submit-art";
+import { toast } from "sonner";
+import {
+    MAX_TITLE_LENGTH,
+    MAX_DESCRIPTION_LENGTH,
+    MAX_TAGS,
+    MAX_TAG_LENGTH,
+} from "@/constants/submit-form";
 
 interface SubmitModalProps {
     isOpen: boolean;
     onClose: () => void;
 }
 
-// Define limits for form fields
-const MAX_TITLE_LENGTH = 80;
-const MAX_DESCRIPTION_LENGTH = 500;
-const MAX_AUTHOR_LENGTH = 40;
-const MAX_TAG_LENGTH = 20;
-const MAX_TAGS = 8;
+const formSchema = z.object({
+    title: z.string().min(1, "Title is required").max(MAX_TITLE_LENGTH),
+    description: z.string().max(MAX_DESCRIPTION_LENGTH).optional(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 export default function SubmitModal({ isOpen, onClose }: SubmitModalProps) {
-    const router = useRouter();
     const { frames, currentFrame, fps, width, height, asciiChars, invert } =
         useAsciiConverterStore();
-    const { addSubmission } = useCommunityStore();
-
-    const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
-    const [author, setAuthor] = useState("");
+    const router = useRouter();
     const [tagInput, setTagInput] = useState("");
     const [tags, setTags] = useState<string[]>([]);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [errors, setErrors] = useState<{ title?: string }>({});
+
+    const form = useForm<FormValues>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            title: "",
+            description: "",
+        },
+    });
+
+    const { mutate: submitArt, isPending } = useSubmitArt({
+        onSuccess: (data) => {
+            if (data.success) {
+                toast.success("Art submitted successfully");
+                onClose();
+                form.reset();
+                setTags([]);
+                router.push("/community");
+            } else {
+                toast.error(data.message);
+            }
+        },
+    });
 
     const handleAddTag = () => {
         if (
@@ -69,28 +94,14 @@ export default function SubmitModal({ isOpen, onClose }: SubmitModalProps) {
         }
     };
 
-    const validateForm = () => {
-        const newErrors: { title?: string } = {};
-
-        if (!title.trim()) {
-            newErrors.title = "Title is required";
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
-    const handleSubmit = async () => {
-        if (!validateForm() || frames.length === 0) return;
-
-        setIsSubmitting(true);
+    const onSubmit = async (data: FormValues) => {
+        if (frames.length === 0) return;
 
         const submission = {
-            title: title.trim(),
-            description: description.trim(),
-            author: author.trim(),
+            title: data.title.trim(),
+            description: data.description?.trim() || "",
             tags,
-            asciiFrame: frames[currentFrame],
+            asciiFrame: frames,
             metadata: {
                 fps,
                 width,
@@ -99,26 +110,19 @@ export default function SubmitModal({ isOpen, onClose }: SubmitModalProps) {
                 invert,
                 createdAt: new Date().toISOString(),
             },
-            likes: 0,
         };
 
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
         // Add to store
-        addSubmission(submission);
+        console.log(submission);
 
-        setIsSubmitting(false);
-        onClose();
+        submitArt(submission);
 
-        // Reset form
-        setTitle("");
-        setDescription("");
-        setAuthor("");
-        setTags([]);
+        // onClose();
 
-        // Navigate to community page
-        router.push("/community");
+        // // Reset form
+
+        // // Navigate to community page
+        // router.push("/community");
     };
 
     return (
@@ -130,7 +134,10 @@ export default function SubmitModal({ isOpen, onClose }: SubmitModalProps) {
                     </DialogTitle>
                 </DialogHeader>
 
-                <div className="grid gap-4 py-2">
+                <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="grid gap-4 py-2"
+                >
                     <div className="grid gap-2">
                         <div className="flex justify-between items-center">
                             <Label
@@ -143,29 +150,22 @@ export default function SubmitModal({ isOpen, onClose }: SubmitModalProps) {
                                 </span>
                             </Label>
                             <span className="text-xs text-zinc-500">
-                                {title.length}/{MAX_TITLE_LENGTH}
+                                {form.watch("title")?.length || 0}/
+                                {MAX_TITLE_LENGTH}
                             </span>
                         </div>
                         <div className="relative">
                             <Input
                                 id="title"
-                                value={title}
-                                onChange={(e) =>
-                                    setTitle(
-                                        e.target.value.slice(
-                                            0,
-                                            MAX_TITLE_LENGTH
-                                        )
-                                    )
-                                }
+                                {...form.register("title")}
                                 className="h-9 bg-zinc-800 border-zinc-700 text-zinc-100 rounded-none"
                                 placeholder="Give your ASCII art a name"
                                 maxLength={MAX_TITLE_LENGTH}
                             />
-                            {errors.title && (
+                            {form.formState.errors.title && (
                                 <div className="text-red-500 text-xs mt-1 flex items-center">
                                     <AlertCircle className="h-3 w-3 mr-1" />
-                                    {errors.title}
+                                    {form.formState.errors.title.message}
                                 </div>
                             )}
                         </div>
@@ -183,52 +183,16 @@ export default function SubmitModal({ isOpen, onClose }: SubmitModalProps) {
                                 </span>
                             </Label>
                             <span className="text-xs text-zinc-500">
-                                {description.length}/{MAX_DESCRIPTION_LENGTH}
+                                {form.watch("description")?.length || 0}/
+                                {MAX_DESCRIPTION_LENGTH}
                             </span>
                         </div>
                         <Textarea
                             id="description"
-                            value={description}
-                            onChange={(e) =>
-                                setDescription(
-                                    e.target.value.slice(
-                                        0,
-                                        MAX_DESCRIPTION_LENGTH
-                                    )
-                                )
-                            }
+                            {...form.register("description")}
                             className="bg-zinc-800 border-zinc-700 text-zinc-100 rounded-none min-h-[80px]"
                             placeholder="Tell the community about your ASCII art"
                             maxLength={MAX_DESCRIPTION_LENGTH}
-                        />
-                    </div>
-
-                    <div className="grid gap-2">
-                        <div className="flex justify-between items-center">
-                            <Label
-                                htmlFor="author"
-                                className="text-xs text-zinc-400 font-bold"
-                            >
-                                AUTHOR{" "}
-                                <span className="text-zinc-500">
-                                    (OPTIONAL)
-                                </span>
-                            </Label>
-                            <span className="text-xs text-zinc-500">
-                                {author.length}/{MAX_AUTHOR_LENGTH}
-                            </span>
-                        </div>
-                        <Input
-                            id="author"
-                            value={author}
-                            onChange={(e) =>
-                                setAuthor(
-                                    e.target.value.slice(0, MAX_AUTHOR_LENGTH)
-                                )
-                            }
-                            className="h-9 bg-zinc-800 border-zinc-700 text-zinc-100 rounded-none"
-                            placeholder="Your name or handle"
-                            maxLength={MAX_AUTHOR_LENGTH}
                         />
                     </div>
 
@@ -331,26 +295,29 @@ export default function SubmitModal({ isOpen, onClose }: SubmitModalProps) {
                             {invert ? "Inverted" : "Normal"}
                         </div>
                     </div>
-                </div>
 
-                <DialogFooter className="flex flex-col sm:flex-row gap-2 mt-4 sm:mt-6">
-                    <Button
-                        variant="outline"
-                        onClick={onClose}
-                        className="bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 rounded-none w-full sm:w-auto"
-                    >
-                        CANCEL
-                    </Button>
-                    <Button
-                        onClick={handleSubmit}
-                        disabled={
-                            !title.trim() || isSubmitting || frames.length === 0
-                        }
-                        className="bg-zinc-100 text-zinc-900 hover:bg-zinc-200 hover:text-zinc-900 rounded-none w-full sm:w-auto"
-                    >
-                        {isSubmitting ? "SUBMITTING..." : "SUBMIT"}
-                    </Button>
-                </DialogFooter>
+                    <DialogFooter className="flex flex-col sm:flex-row gap-2 mt-4 sm:mt-6">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={onClose}
+                            className="bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 rounded-none w-full sm:w-auto"
+                        >
+                            CANCEL
+                        </Button>
+                        <Button
+                            type="submit"
+                            disabled={
+                                !form.formState.isValid ||
+                                isPending ||
+                                frames.length === 0
+                            }
+                            className="bg-zinc-100 text-zinc-900 hover:bg-zinc-200 hover:text-zinc-900 rounded-none w-full sm:w-auto"
+                        >
+                            {isPending ? "SUBMITTING..." : "SUBMIT"}
+                        </Button>
+                    </DialogFooter>
+                </form>
             </DialogContent>
         </Dialog>
     );

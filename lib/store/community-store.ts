@@ -4,7 +4,7 @@ export interface AsciiSubmission {
     id: string;
     title: string;
     description: string;
-    author: string;
+    author?: string;
     tags: string[];
     asciiFrame: string;
     metadata: {
@@ -168,7 +168,7 @@ export const useCommunityStore = create<CommunityState>((set, get) => ({
                 (sub) =>
                     sub.title.toLowerCase().includes(query) ||
                     sub.description.toLowerCase().includes(query) ||
-                    sub.author.toLowerCase().includes(query) ||
+                    sub.author?.toLowerCase().includes(query) ||
                     sub.tags.some((tag) => tag.toLowerCase().includes(query))
             );
         }

@@ -2,10 +2,11 @@ import { useSignInModal } from "@/lib/store/signin-modal";
 import { Button } from "../ui/button";
 import { useSession, signOut } from "next-auth/react";
 import { LogIn, LogOut } from "lucide-react";
+import { Skeleton } from "../ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 export default function SignInButton() {
-    const { data: session } = useSession();
-    console.log(session);
+    const { data: session, status } = useSession();
+    console.log("session", session);
     const { setOpen } = useSignInModal();
 
     const handleSignIn = () => {
@@ -15,6 +16,12 @@ export default function SignInButton() {
             setOpen(true);
         }
     };
+
+    if (status === "loading") {
+        return (
+            <Skeleton className="h-8 min-w-24 bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 rounded-none" />
+        );
+    }
 
     return (
         <Button
