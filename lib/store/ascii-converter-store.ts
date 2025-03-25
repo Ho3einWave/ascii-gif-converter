@@ -47,8 +47,8 @@ export const useAsciiConverterStore = create<AsciiConverterState>(
         currentFrame: 0,
         isPlaying: false,
 
-        asciiChars: " .:-=+*#%@",
-        width: 80,
+        asciiChars: " .:`'\",;><)(}{[]_|\\/-^~=?+*%$#",
+        width: 40,
         height: 40,
         fontSize: 8,
         fps: 10,
