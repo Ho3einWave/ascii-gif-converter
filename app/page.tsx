@@ -44,18 +44,16 @@ export default function AsciiGifConverter() {
     return (
         <div className="min-h-screen bg-zinc-950 text-zinc-100 font-mono">
             <AsciiConverterHeader>
-                <div className="flex items-center">
-                    <Link href="/community">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-8 bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 rounded-none"
-                        >
-                            <Users className="h-4 w-4 mr-2" />
-                            COMMUNITY
-                        </Button>
-                    </Link>
-                </div>
+                <Link href="/community">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 rounded-none"
+                    >
+                        <Users className="h-4 w-4 mr-2" />
+                        COMMUNITY
+                    </Button>
+                </Link>
             </AsciiConverterHeader>
 
             <main className="max-w-5xl mx-auto">

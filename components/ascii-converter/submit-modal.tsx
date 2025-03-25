@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -16,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { X } from "lucide-react";
+import { X, AlertCircle } from "lucide-react";
 import { useAsciiConverterStore } from "@/lib/store/ascii-converter-store";
 import { useCommunityStore } from "@/lib/store/community-store";
 
@@ -24,6 +23,13 @@ interface SubmitModalProps {
     isOpen: boolean;
     onClose: () => void;
 }
+
+// Define limits for form fields
+const MAX_TITLE_LENGTH = 80;
+const MAX_DESCRIPTION_LENGTH = 500;
+const MAX_AUTHOR_LENGTH = 40;
+const MAX_TAG_LENGTH = 20;
+const MAX_TAGS = 8;
 
 export default function SubmitModal({ isOpen, onClose }: SubmitModalProps) {
     const router = useRouter();
@@ -37,10 +43,17 @@ export default function SubmitModal({ isOpen, onClose }: SubmitModalProps) {
     const [tagInput, setTagInput] = useState("");
     const [tags, setTags] = useState<string[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [errors, setErrors] = useState<{ title?: string }>({});
 
     const handleAddTag = () => {
-        if (tagInput.trim() && !tags.includes(tagInput.trim())) {
-            setTags([...tags, tagInput.trim()]);
+        if (
+            tagInput.trim() &&
+            !tags.includes(tagInput.trim()) &&
+            tags.length < MAX_TAGS
+        ) {
+            // Trim tag to max length
+            const trimmedTag = tagInput.trim().slice(0, MAX_TAG_LENGTH);
+            setTags([...tags, trimmedTag]);
             setTagInput("");
         }
     };
@@ -56,15 +69,26 @@ export default function SubmitModal({ isOpen, onClose }: SubmitModalProps) {
         }
     };
 
+    const validateForm = () => {
+        const newErrors: { title?: string } = {};
+
+        if (!title.trim()) {
+            newErrors.title = "Title is required";
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const handleSubmit = async () => {
-        if (!title.trim() || frames.length === 0) return;
+        if (!validateForm() || frames.length === 0) return;
 
         setIsSubmitting(true);
 
         const submission = {
-            title,
-            description,
-            author,
+            title: title.trim(),
+            description: description.trim(),
+            author: author.trim(),
             tags,
             asciiFrame: frames[currentFrame],
             metadata: {
@@ -75,7 +99,6 @@ export default function SubmitModal({ isOpen, onClose }: SubmitModalProps) {
                 invert,
                 createdAt: new Date().toISOString(),
             },
-            id: "nanoid",
             likes: 0,
         };
 
@@ -83,7 +106,7 @@ export default function SubmitModal({ isOpen, onClose }: SubmitModalProps) {
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
         // Add to store
-        const newSubmission = addSubmission(submission);
+        addSubmission(submission);
 
         setIsSubmitting(false);
         onClose();
@@ -100,86 +123,162 @@ export default function SubmitModal({ isOpen, onClose }: SubmitModalProps) {
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="bg-zinc-900 border-zinc-700 text-zinc-100 rounded-none max-w-2xl">
-                <DialogHeader>
+            <DialogContent className="bg-zinc-900 border-zinc-700 text-zinc-100 rounded-none max-w-2xl p-4 sm:p-6 w-[95vw] sm:w-auto max-h-[90vh] overflow-y-auto">
+                <DialogHeader className="mb-4">
                     <DialogTitle className="text-zinc-100 font-mono text-lg">
                         SUBMIT_TO_COMMUNITY
                     </DialogTitle>
                 </DialogHeader>
 
-                <div className="grid gap-4 py-4">
+                <div className="grid gap-4 py-2">
                     <div className="grid gap-2">
-                        <Label
-                            htmlFor="title"
-                            className="text-xs text-zinc-400 font-bold"
-                        >
-                            TITLE{" "}
-                            <span className="text-zinc-500">(REQUIRED)</span>
-                        </Label>
-                        <Input
-                            id="title"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            className="h-9 bg-zinc-800 border-zinc-700 text-zinc-100 rounded-none"
-                            placeholder="Give your ASCII art a name"
-                        />
+                        <div className="flex justify-between items-center">
+                            <Label
+                                htmlFor="title"
+                                className="text-xs text-zinc-400 font-bold"
+                            >
+                                TITLE{" "}
+                                <span className="text-zinc-500">
+                                    (REQUIRED)
+                                </span>
+                            </Label>
+                            <span className="text-xs text-zinc-500">
+                                {title.length}/{MAX_TITLE_LENGTH}
+                            </span>
+                        </div>
+                        <div className="relative">
+                            <Input
+                                id="title"
+                                value={title}
+                                onChange={(e) =>
+                                    setTitle(
+                                        e.target.value.slice(
+                                            0,
+                                            MAX_TITLE_LENGTH
+                                        )
+                                    )
+                                }
+                                className="h-9 bg-zinc-800 border-zinc-700 text-zinc-100 rounded-none"
+                                placeholder="Give your ASCII art a name"
+                                maxLength={MAX_TITLE_LENGTH}
+                            />
+                            {errors.title && (
+                                <div className="text-red-500 text-xs mt-1 flex items-center">
+                                    <AlertCircle className="h-3 w-3 mr-1" />
+                                    {errors.title}
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     <div className="grid gap-2">
-                        <Label
-                            htmlFor="description"
-                            className="text-xs text-zinc-400 font-bold"
-                        >
-                            DESCRIPTION{" "}
-                            <span className="text-zinc-500">(OPTIONAL)</span>
-                        </Label>
+                        <div className="flex justify-between items-center">
+                            <Label
+                                htmlFor="description"
+                                className="text-xs text-zinc-400 font-bold"
+                            >
+                                DESCRIPTION{" "}
+                                <span className="text-zinc-500">
+                                    (OPTIONAL)
+                                </span>
+                            </Label>
+                            <span className="text-xs text-zinc-500">
+                                {description.length}/{MAX_DESCRIPTION_LENGTH}
+                            </span>
+                        </div>
                         <Textarea
                             id="description"
                             value={description}
-                            onChange={(e) => setDescription(e.target.value)}
+                            onChange={(e) =>
+                                setDescription(
+                                    e.target.value.slice(
+                                        0,
+                                        MAX_DESCRIPTION_LENGTH
+                                    )
+                                )
+                            }
                             className="bg-zinc-800 border-zinc-700 text-zinc-100 rounded-none min-h-[80px]"
                             placeholder="Tell the community about your ASCII art"
+                            maxLength={MAX_DESCRIPTION_LENGTH}
                         />
                     </div>
 
                     <div className="grid gap-2">
-                        <Label
-                            htmlFor="author"
-                            className="text-xs text-zinc-400 font-bold"
-                        >
-                            AUTHOR{" "}
-                            <span className="text-zinc-500">(OPTIONAL)</span>
-                        </Label>
+                        <div className="flex justify-between items-center">
+                            <Label
+                                htmlFor="author"
+                                className="text-xs text-zinc-400 font-bold"
+                            >
+                                AUTHOR{" "}
+                                <span className="text-zinc-500">
+                                    (OPTIONAL)
+                                </span>
+                            </Label>
+                            <span className="text-xs text-zinc-500">
+                                {author.length}/{MAX_AUTHOR_LENGTH}
+                            </span>
+                        </div>
                         <Input
                             id="author"
                             value={author}
-                            onChange={(e) => setAuthor(e.target.value)}
+                            onChange={(e) =>
+                                setAuthor(
+                                    e.target.value.slice(0, MAX_AUTHOR_LENGTH)
+                                )
+                            }
                             className="h-9 bg-zinc-800 border-zinc-700 text-zinc-100 rounded-none"
                             placeholder="Your name or handle"
+                            maxLength={MAX_AUTHOR_LENGTH}
                         />
                     </div>
 
                     <div className="grid gap-2">
-                        <Label
-                            htmlFor="tags"
-                            className="text-xs text-zinc-400 font-bold"
-                        >
-                            TAGS{" "}
-                            <span className="text-zinc-500">(OPTIONAL)</span>
-                        </Label>
+                        <div className="flex justify-between items-center">
+                            <Label
+                                htmlFor="tags"
+                                className="text-xs text-zinc-400 font-bold"
+                            >
+                                TAGS{" "}
+                                <span className="text-zinc-500">
+                                    (OPTIONAL)
+                                </span>
+                            </Label>
+                            <span className="text-xs text-zinc-500">
+                                {tags.length}/{MAX_TAGS}
+                            </span>
+                        </div>
                         <div className="flex gap-2">
-                            <Input
-                                id="tags"
-                                value={tagInput}
-                                onChange={(e) => setTagInput(e.target.value)}
-                                onKeyDown={handleKeyDown}
-                                className="h-9 bg-zinc-800 border-zinc-700 text-zinc-100 rounded-none"
-                                placeholder="Add tags (press Enter)"
-                            />
+                            <div className="relative flex-1">
+                                <Input
+                                    id="tags"
+                                    value={tagInput}
+                                    onChange={(e) =>
+                                        setTagInput(
+                                            e.target.value.slice(
+                                                0,
+                                                MAX_TAG_LENGTH
+                                            )
+                                        )
+                                    }
+                                    onKeyDown={handleKeyDown}
+                                    className="h-9 bg-zinc-800 border-zinc-700 text-zinc-100 rounded-none pr-16"
+                                    placeholder="Add tags (press Enter)"
+                                    disabled={tags.length >= MAX_TAGS}
+                                    maxLength={MAX_TAG_LENGTH}
+                                />
+                                {tagInput && (
+                                    <div className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500">
+                                        {tagInput.length}/{MAX_TAG_LENGTH}
+                                    </div>
+                                )}
+                            </div>
                             <Button
                                 type="button"
                                 onClick={handleAddTag}
-                                className="h-9 bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 rounded-none"
+                                className="h-9 bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 rounded-none whitespace-nowrap"
+                                disabled={
+                                    tags.length >= MAX_TAGS || !tagInput.trim()
+                                }
                             >
                                 ADD
                             </Button>
@@ -205,7 +304,7 @@ export default function SubmitModal({ isOpen, onClose }: SubmitModalProps) {
                         )}
                     </div>
 
-                    <div className="grid gap-2">
+                    <div className="grid gap-2 mt-2">
                         <Label className="text-xs text-zinc-400 font-bold">
                             PREVIEW
                         </Label>
@@ -234,11 +333,11 @@ export default function SubmitModal({ isOpen, onClose }: SubmitModalProps) {
                     </div>
                 </div>
 
-                <DialogFooter>
+                <DialogFooter className="flex flex-col sm:flex-row gap-2 mt-4 sm:mt-6">
                     <Button
                         variant="outline"
                         onClick={onClose}
-                        className="bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 rounded-none"
+                        className="bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 rounded-none w-full sm:w-auto"
                     >
                         CANCEL
                     </Button>
@@ -247,7 +346,7 @@ export default function SubmitModal({ isOpen, onClose }: SubmitModalProps) {
                         disabled={
                             !title.trim() || isSubmitting || frames.length === 0
                         }
-                        className="bg-zinc-100 text-zinc-900 hover:bg-zinc-200 hover:text-zinc-900 rounded-none"
+                        className="bg-zinc-100 text-zinc-900 hover:bg-zinc-200 hover:text-zinc-900 rounded-none w-full sm:w-auto"
                     >
                         {isSubmitting ? "SUBMITTING..." : "SUBMIT"}
                     </Button>

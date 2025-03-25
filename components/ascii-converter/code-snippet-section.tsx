@@ -31,14 +31,14 @@ export default function CodeSnippetSection() {
 
     return (
         <div className="p-4 bg-zinc-900 border-t border-zinc-800">
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-2">
                 <div className="flex items-center gap-2">
                     <Code className="h-4 w-4 text-zinc-400" />
                     <h3 className="text-xs text-zinc-400 font-bold">
                         CODE_SNIPPET
                     </h3>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between gap-2">
                     <Select value={language} onValueChange={setLanguage}>
                         <SelectTrigger className="w-[180px] h-8 text-xs bg-zinc-900 border-zinc-700 rounded-none">
                             <SelectValue placeholder="Select language" />

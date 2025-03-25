@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Users, ArrowLeft } from "lucide-react";
 import { usePathname } from "next/navigation";
+import SignInButton from "../auth/signin-button";
 
 interface AsciiConverterHeaderProps {
     children?: React.ReactNode;
@@ -43,8 +44,9 @@ export default function AsciiConverterHeader({
                     </div>
 
                     {/* Desktop navigation */}
-                    <div className="hidden sm:flex items-center">
+                    <div className="hidden sm:flex items-center gap-2">
                         {children}
+                        <SignInButton />
                     </div>
 
                     {/* Mobile menu button */}
@@ -67,7 +69,7 @@ export default function AsciiConverterHeader({
                 {/* Mobile menu */}
                 {isMenuOpen && (
                     <div className="sm:hidden py-3 border-t border-zinc-800 mt-2 space-y-2">
-                        {pathname === "/" ? (
+                        {/* {pathname === "/" ? (
                             <Link
                                 href="/community"
                                 onClick={() => setIsMenuOpen(false)}
@@ -92,10 +94,11 @@ export default function AsciiConverterHeader({
                                     CONVERTER
                                 </Button>
                             </Link>
-                        )}
+                        )} */}
 
-                        {/* Render any additional children for mobile */}
-                        <div className="pt-2">{children}</div>
+                        <div className="pt-2">
+                            {children} <SignInButton />
+                        </div>
                     </div>
                 )}
             </div>

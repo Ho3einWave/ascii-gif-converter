@@ -40,7 +40,7 @@ export default function AsciiArtCard({
     );
 
     const handleCardClick = () => {
-        router.push(`/art/${submission.id}`);
+        router.push(`/community/art/${submission.id}`);
     };
 
     const handleLikeClick = (e: React.MouseEvent) => {

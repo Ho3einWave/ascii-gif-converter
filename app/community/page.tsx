@@ -25,7 +25,7 @@ export default function CommunityPage() {
     return (
         <div className="min-h-screen bg-zinc-950 text-zinc-100 font-mono">
             <AsciiConverterHeader>
-                <Link href="/" className="hidden sm:block">
+                <Link href="/">
                     <Button
                         variant="outline"
                         size="sm"

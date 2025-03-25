@@ -1,6 +1,7 @@
 import { create } from "zustand";
 
 export interface AsciiSubmission {
+    id: string;
     title: string;
     description: string;
     author: string;
@@ -14,7 +15,6 @@ export interface AsciiSubmission {
         invert: boolean;
         createdAt: string;
     };
-    id: string;
     likes: number;
 }
 
@@ -33,8 +33,9 @@ interface CommunityState {
 
     // Actions
     loadSubmissions: () => void;
-    addSubmission: (submission: AsciiSubmission) => void;
+    addSubmission: (submission: Omit<AsciiSubmission, "id">) => void;
     likeSubmission: (index: number) => void;
+    getSubmissionById: (id: string) => AsciiSubmission | undefined;
 
     setSearchQuery: (query: string) => void;
     setSelectedTags: (tags: string[]) => void;
@@ -44,6 +45,14 @@ interface CommunityState {
     getFilteredSubmissions: () => AsciiSubmission[];
     getAllTags: () => string[];
 }
+
+// Helper to generate a unique ID
+const generateId = () => {
+    return (
+        Math.random().toString(36).substring(2, 15) +
+        Math.random().toString(36).substring(2, 15)
+    );
+};
 
 export const useCommunityStore = create<CommunityState>((set, get) => ({
     // Initial state
@@ -61,15 +70,40 @@ export const useCommunityStore = create<CommunityState>((set, get) => ({
         const storedSubmissions = JSON.parse(
             localStorage.getItem("asciiSubmissions") || "[]"
         );
+
+        // Add IDs to any submissions that don't have them (for backward compatibility)
+        const submissionsWithIds = storedSubmissions.map((sub: any) => {
+            if (!sub.id) {
+                return { ...sub, id: generateId() };
+            }
+            return sub;
+        });
+
         set({
-            submissions: storedSubmissions,
+            submissions: submissionsWithIds,
             filteredSubmissions: get().getFilteredSubmissions(),
             allTags: get().getAllTags(),
         });
+
+        // Save back with IDs if needed
+        if (
+            JSON.stringify(submissionsWithIds) !==
+            JSON.stringify(storedSubmissions)
+        ) {
+            localStorage.setItem(
+                "asciiSubmissions",
+                JSON.stringify(submissionsWithIds)
+            );
+        }
     },
 
     addSubmission: (submission) => {
-        const updatedSubmissions = [...get().submissions, submission];
+        const newSubmission = {
+            ...submission,
+            id: generateId(),
+        };
+
+        const updatedSubmissions = [...get().submissions, newSubmission];
         localStorage.setItem(
             "asciiSubmissions",
             JSON.stringify(updatedSubmissions)
@@ -94,6 +128,10 @@ export const useCommunityStore = create<CommunityState>((set, get) => ({
                 filteredSubmissions: get().getFilteredSubmissions(),
             });
         }
+    },
+
+    getSubmissionById: (id) => {
+        return get().submissions.find((sub) => sub.id === id);
     },
 
     setSearchQuery: (query) => {
