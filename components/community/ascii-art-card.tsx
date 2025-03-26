@@ -95,7 +95,7 @@ export default function AsciiArtCard({
             <CardContent className="p-0 relative">
                 <div
                     className="bg-black p-2 overflow-hidden flex items-center justify-center"
-                    style={{ height: "150px" }}
+                    style={{ height: "280px" }}
                 >
                     <pre
                         style={{
