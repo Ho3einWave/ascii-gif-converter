@@ -8,7 +8,6 @@ export const useLikeArt = () => {
         mutationFn: likeArt,
         onSuccess: (data) => {
             if (data.success) {
-                console.log("refetching");
                 queryClient.refetchQueries({
                     queryKey: ["ascii-arts"],
                     type: "all",
@@ -19,7 +18,11 @@ export const useLikeArt = () => {
                     type: "all",
                     exact: false,
                 });
-
+                queryClient.refetchQueries({
+                    queryKey: ["art"],
+                    type: "all",
+                    exact: false,
+                });
                 toast.success(data.message);
             } else {
                 toast.error(data.message);

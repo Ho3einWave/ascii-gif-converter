@@ -155,7 +155,10 @@ export default function AsciiArtCard({ submission }: AsciiArtCardProps) {
                 {submission.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1">
                         {visibleTags.map((tag) => (
-                            <Badge key={tag} className="terminal-tag">
+                            <Badge
+                                key={tag}
+                                className="rounded-none bg-zinc-800 text-zinc-400 text-xs hover:bg-zinc-800 hover:text-zinc-300 border-zinc-700 border-[1px]"
+                            >
                                 {tag}
                             </Badge>
                         ))}

@@ -1,6 +1,7 @@
 import React from "react";
 import ArtDetailPage from "../../../../components/community/art-details";
 import { getArtById } from "@/services/api/getArtById";
+import { notFound } from "next/navigation";
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -9,7 +10,10 @@ interface PageProps {
 const Page = async ({ params }: PageProps) => {
     const { id } = await params;
     const art = await getArtById(id);
-    return <ArtDetailPage id={id} art={art.data} />;
+    if (!art.success) {
+        return notFound();
+    }
+    return <ArtDetailPage artInitialData={art.data} />;
 };
 
 export default Page;

@@ -102,7 +102,7 @@ export default function CommunityFilters({ allTags }: CommunityFiltersProps) {
             </div>
 
             {allTags.length > 0 && (
-                <div className="space-y-2">
+                <div className="space-y-2 flex flex-col md:flex-row justify-between items-center">
                     <div className="flex flex-wrap gap-2">
                         <span className="text-xs text-zinc-500 self-center">
                             FILTER_BY_TAGS:
@@ -148,7 +148,6 @@ export default function CommunityFilters({ allTags }: CommunityFiltersProps) {
                             </Button>
                         )}
                     </div>
-
                     {(queryParams.tags?.length ?? 0) > 0 && (
                         <Button
                             variant="link"

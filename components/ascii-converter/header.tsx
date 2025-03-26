@@ -33,10 +33,6 @@ export default function AsciiConverterHeader({
                             <div className="w-3 h-3 bg-zinc-700 hover:bg-zinc-500 transition-colors"></div>
                         </div>
                         <div className="text-xs text-zinc-400 font-bold tracking-wider">
-                            <span className="text-zinc-500">[</span>
-                            SYSTEM
-                            <span className="text-zinc-500">]</span>
-                            <span className="mx-2">:</span>
                             <span className="text-zinc-300">
                                 ASCII_CONVERTER.EXE
                             </span>

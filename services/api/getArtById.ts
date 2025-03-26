@@ -1,9 +1,18 @@
 import httpClient from "../httpClient";
 
-export type GetArtByIdResponse = {
-    success: boolean;
+export type GetArtByIdSuccessResponse = {
+    success: true;
     data: ASCIIArt;
 };
+
+export type GetArtByIdErrorResponse = {
+    success: false;
+    message: string;
+};
+
+export type GetArtByIdResponse =
+    | GetArtByIdSuccessResponse
+    | GetArtByIdErrorResponse;
 
 export interface ASCIIArt {
     metadata: Metadata;
@@ -28,9 +37,13 @@ export interface Metadata {
     invert: boolean;
 }
 
-export const getArtById = async (id: string) => {
-    const res = await httpClient.get<GetArtByIdResponse>(
-        `/v1/ascii-art/get-ascii-art/${id}`
-    );
-    return res.data;
+export const getArtById = async (id: string): Promise<GetArtByIdResponse> => {
+    try {
+        const res = await httpClient.get<GetArtByIdResponse>(
+            `/v1/ascii-art/get-ascii-art/${id}`
+        );
+        return res.data;
+    } catch (error) {
+        return { success: false, message: "Failed to get art by id" };
+    }
 };

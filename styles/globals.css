@@ -95,23 +95,19 @@ input[type="range"]::-ms-thumb {
 
 /* Custom hover effects */
 .terminal-btn {
-    @apply bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 rounded-none transition-colors duration-200;
+    @apply bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 rounded-none duration-200 transition-all;
 }
 
 .terminal-btn-primary {
-    @apply bg-zinc-100 text-zinc-900 hover:bg-zinc-200 hover:text-zinc-900 rounded-none transition-colors duration-200;
+    @apply bg-zinc-100 text-zinc-900 hover:bg-zinc-200 hover:text-zinc-900 rounded-none transition-colors duration-200 flex-grow;
 }
 
 .terminal-tag {
-    @apply bg-zinc-800 text-zinc-400 text-xs rounded-none transition-colors duration-200;
-}
-
-.terminal-tag:hover {
-    @apply bg-zinc-700 text-zinc-300;
+    @apply bg-zinc-800 text-zinc-400 text-xs rounded-none transition-colors duration-200 cursor-pointer hover:bg-zinc-700 hover:text-zinc-300;
 }
 
 .terminal-tag-selected {
-    @apply bg-zinc-100 text-zinc-900 hover:bg-zinc-200 rounded-none transition-colors duration-200;
+    @apply bg-zinc-100 text-zinc-900 hover:bg-zinc-200 cursor-pointer rounded-none transition-colors duration-200;
 }
 
 .terminal-input {

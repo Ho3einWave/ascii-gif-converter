@@ -2,9 +2,8 @@
 
 import Link from "next/link";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { notFound } from "next/navigation";
 import AsciiConverterHeader from "@/components/ascii-converter/header";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -21,25 +20,39 @@ import {
     ChevronDown,
     ChevronUp,
 } from "lucide-react";
-import { useCommunityStore } from "@/lib/store/community-store";
 import { getCodeSnippet } from "@/lib/ascii-converter/code-generator";
 import { formatDistanceToNow, format } from "date-fns";
 import { ASCIIArt } from "@/services/api/getArtById";
 import { AsciiPreview } from "@/components/ascii-converter/ascii-preview";
+import { useLikeArt } from "@/hooks/community/useLikeArt";
+import { useUnlikeArt } from "@/hooks/community/useUnlikeArt";
+import { useUserLikes } from "@/hooks/community/useUserLikes";
+import { useSession } from "next-auth/react";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { useGetArtById } from "@/hooks/community/useGetArtById";
 
 export default function ArtDetailPage({
-    id,
-    art,
+    artInitialData,
 }: {
-    id: string;
-    art: ASCIIArt;
+    artInitialData: ASCIIArt;
 }) {
+    const { data: art = artInitialData } = useGetArtById(artInitialData.id, {
+        placeholderData: artInitialData,
+    });
+
     const router = useRouter();
-    const { likeSubmission } = useCommunityStore();
+    const { mutate: likeArt, isPending: isLikePending } = useLikeArt();
+    const { mutate: unlikeArt, isPending: isUnlikePending } = useUnlikeArt();
+    const { data: userLikes, isLoading: isUserLikesLoading } = useUserLikes();
+    const { status } = useSession();
+    const isLiked = userLikes?.includes(art.id);
+    const isLikedButtonDisabled =
+        isLikePending || isUnlikePending || isUserLikesLoading;
+
     const [copied, setCopied] = useState(false);
     const [language, setLanguage] = useState("javascript");
     const [showAllTags, setShowAllTags] = useState(false);
-    const [isLikeAnimating, setIsLikeAnimating] = useState(false);
     const codeRef = useRef<HTMLTextAreaElement>(null);
 
     const MAX_VISIBLE_TAGS = 10;
@@ -64,17 +77,15 @@ export default function ArtDetailPage({
     };
 
     const handleLike = () => {
-        setIsLikeAnimating(true);
-        // Find the index of the submission
-        const index = -1;
-        if (index !== -1) {
-            likeSubmission(index);
+        if (status === "authenticated" && !isUserLikesLoading) {
+            if (isLiked) {
+                unlikeArt(art.id);
+            } else {
+                likeArt(art.id);
+            }
+        } else {
+            toast.error("Please login to like this art");
         }
-
-        // Reset animation after it completes
-        setTimeout(() => {
-            setIsLikeAnimating(false);
-        }, 500);
     };
 
     const languages = [
@@ -112,20 +123,28 @@ export default function ArtDetailPage({
                             variant="ghost"
                             size="sm"
                             onClick={handleLike}
-                            className={`h-8 p-2 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 transition-colors rounded-none flex items-center gap-1 ${
-                                isLikeAnimating ? "animate-pulse" : ""
-                            }`}
+                            className={cn(
+                                "h-8 p-2 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 transition-colors rounded-none flex items-center gap-1",
+                                isLikePending || isUnlikePending
+                                    ? "animate-pulse"
+                                    : "",
+                                isLikedButtonDisabled &&
+                                    "text-zinc-300 scale-110",
+                                isLiked && "text-green-500"
+                            )}
                         >
                             <ThumbsUp
                                 className={`h-4 w-4 ${
-                                    isLikeAnimating
+                                    isLikePending || isUnlikePending
                                         ? "text-zinc-300 scale-110"
                                         : ""
                                 } transition-all`}
                             />
                             <span
                                 className={`text-xs ${
-                                    isLikeAnimating ? "text-zinc-300" : ""
+                                    isLikePending || isUnlikePending
+                                        ? "text-zinc-300"
+                                        : ""
                                 } transition-colors`}
                             >
                                 {art.likesCount}
@@ -152,7 +171,10 @@ export default function ArtDetailPage({
                         {art.tags.length > 0 && (
                             <div className="flex flex-wrap gap-1 items-center">
                                 {visibleTags.map((tag) => (
-                                    <Badge key={tag} className="terminal-tag">
+                                    <Badge
+                                        key={tag}
+                                        className="rounded-none bg-zinc-800 text-zinc-400 text-xs hover:bg-zinc-800 hover:text-zinc-300 border-zinc-700 border-[1px]"
+                                    >
                                         {tag}
                                     </Badge>
                                 ))}
