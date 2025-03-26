@@ -52,10 +52,10 @@ export async function submitArt({
         creator_email: session.user.email,
     });
 
-    if (!response.status) {
+    if (!response.success) {
         return {
             success: false,
-            message: response.message,
+            message: response.message!,
         } satisfies SubmitArtError;
     }
 

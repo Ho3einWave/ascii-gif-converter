@@ -15,7 +15,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
                 <SessionProvider>
                     {children}
                     <SignInModal open={open} onOpenChange={setOpen} />
-                    <Toaster />
+                    <Toaster position="bottom-center" theme="dark" />
                 </SessionProvider>
             </QueryClientProvider>
         </NuqsAdapter>

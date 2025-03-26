@@ -12,25 +12,29 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ThumbsUp, ArrowUpRight, Plus } from "lucide-react";
+import { ThumbsUp, ArrowUpRight, Plus, Loader2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import type { CommunityArt } from "@/services/api/getCommunityArts";
-
+import { useSession } from "next-auth/react";
+import { toast } from "sonner";
+import { useLikeArt } from "@/hooks/community/useLikeArt";
+import { useUserLikes } from "@/hooks/community/useUserLikes";
+import { cn } from "@/lib/utils";
+import { useUnlikeArt } from "@/hooks/community/useUnlikeArt";
 interface AsciiArtCardProps {
     submission: CommunityArt;
     onLike: () => void;
 }
 
-export default function AsciiArtCard({
-    submission,
-    onLike,
-}: AsciiArtCardProps) {
+export default function AsciiArtCard({ submission }: AsciiArtCardProps) {
+    const { status } = useSession();
+    const { data: userLikes } = useUserLikes();
     const router = useRouter();
-    const [isLikeAnimating, setIsLikeAnimating] = useState(false);
     const timeAgo = formatDistanceToNow(new Date(submission.createdAt), {
         addSuffix: true,
     });
-
+    const { mutate: likeArt, isPending: isLikePending } = useLikeArt();
+    const { mutate: unlikeArt, isPending: isUnlikePending } = useUnlikeArt();
     const MAX_VISIBLE_TAGS = 3;
     const visibleTags = submission.tags.slice(0, MAX_VISIBLE_TAGS);
     const hiddenTagsCount = Math.max(
@@ -43,15 +47,24 @@ export default function AsciiArtCard({
     };
 
     const handleLikeClick = (e: React.MouseEvent) => {
-        e.stopPropagation(); // Prevent card click when liking
-        setIsLikeAnimating(true);
-        onLike();
-
-        // Reset animation after it completes
-        setTimeout(() => {
-            setIsLikeAnimating(false);
-        }, 500);
+        console.log("handleLikeClick");
+        e.stopPropagation();
+        if (status === "authenticated") {
+            console.log("authenticated");
+            if (isLiked) {
+                console.log("unlikeArt");
+                unlikeArt(submission.id);
+            } else {
+                console.log("likeArt");
+                likeArt(submission.id);
+            }
+        } else {
+            toast.error("You must be logged in to like art");
+        }
     };
+
+    const isLikedButtonDisabled = isLikePending || isUnlikePending;
+    const isLiked = userLikes?.includes(submission.id);
 
     return (
         <Card
@@ -67,18 +80,33 @@ export default function AsciiArtCard({
                         variant="ghost"
                         size="sm"
                         onClick={handleLikeClick}
-                        className={`h-8 p-1 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 transition-colors rounded-none flex items-center gap-1 ${
-                            isLikeAnimating ? "animate-pulse" : ""
-                        }`}
+                        className={cn(
+                            "h-8 p-1 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 transition-colors rounded-none flex items-center gap-1",
+                            isLikePending || isUnlikePending
+                                ? "animate-pulse"
+                                : "",
+                            isLikedButtonDisabled &&
+                                "opacity-50 cursor-not-allowed",
+                            isLiked && "text-green-500"
+                        )}
+                        disabled={isLikedButtonDisabled}
                     >
-                        <ThumbsUp
-                            className={`h-4 w-4 ${
-                                isLikeAnimating ? "text-zinc-300 scale-110" : ""
-                            } transition-all`}
-                        />
+                        {isLikedButtonDisabled ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                            <ThumbsUp
+                                className={`h-4 w-4 ${
+                                    isLikePending || isUnlikePending
+                                        ? "text-zinc-300 scale-110"
+                                        : ""
+                                } transition-all`}
+                            />
+                        )}
                         <span
                             className={`text-xs ${
-                                isLikeAnimating ? "text-zinc-300" : ""
+                                isLikePending || isUnlikePending
+                                    ? "text-zinc-300"
+                                    : ""
                             } transition-colors`}
                         >
                             {submission.likesCount}

@@ -13,23 +13,29 @@ type SubmitArtProps = {
     creator_email: string;
 };
 
+type CreateArtResponse = {
+    success: boolean;
+    message?: string;
+    id?: string;
+};
+
 export const createArt = async (
     art: SubmitArtProps
-): Promise<{ status: boolean; message: string; id?: string }> => {
+): Promise<CreateArtResponse> => {
     try {
-        const response = await httpClient.post(
+        const response = await httpClient.post<CreateArtResponse>(
             "/v1/ascii-art/create-ascii-art",
             art
         );
         return {
-            status: response.data.status,
+            success: response.data.success,
             message: response.data.message,
             id: response.data.id,
         };
     } catch (error) {
         if (error instanceof Error) {
-            return { status: false, message: error.message };
+            return { success: false, message: error.message };
         }
-        return { status: false, message: "Unknown error" };
+        return { success: false, message: "Unknown error" };
     }
 };
