@@ -16,7 +16,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { X, AlertCircle } from "lucide-react";
 import { useAsciiConverterStore } from "@/lib/store/ascii-converter-store";
@@ -24,10 +23,10 @@ import { useSubmitArt } from "@/hooks/use-submit-art";
 import { toast } from "sonner";
 import {
     MAX_TITLE_LENGTH,
-    MAX_DESCRIPTION_LENGTH,
     MAX_TAGS,
     MAX_TAG_LENGTH,
 } from "@/constants/submit-form";
+import { AsciiPreview } from "@/components/ascii-converter/ascii-preview";
 
 interface SubmitModalProps {
     isOpen: boolean;
@@ -243,24 +242,13 @@ export default function SubmitModal({ isOpen, onClose }: SubmitModalProps) {
                         <Label className="text-xs text-zinc-400 font-bold">
                             PREVIEW
                         </Label>
-                        <div className="bg-black p-2 overflow-auto max-h-[200px] flex items-center justify-center">
-                            <pre
-                                style={{
-                                    fontSize: "8px",
-                                    lineHeight: 1,
-                                    whiteSpace: "pre",
-                                    fontFamily: "monospace",
-                                    color: invert ? "#000" : "#fff",
-                                    backgroundColor: invert
-                                        ? "#fff"
-                                        : "transparent",
-                                    margin: "0 auto",
-                                    textAlign: "center",
-                                }}
-                            >
-                                {frames[currentFrame] || ""}
-                            </pre>
-                        </div>
+                        <AsciiPreview
+                            frames={frames}
+                            fps={fps}
+                            fontSize={8}
+                            invert={invert}
+                            className="p-2 overflow-auto max-h-[200px]"
+                        />
                         <div className="text-xs text-zinc-500 mt-1">
                             Metadata: {width}x{height}, {fps} FPS,{" "}
                             {invert ? "Inverted" : "Normal"}
