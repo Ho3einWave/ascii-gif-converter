@@ -6,20 +6,31 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Search, Clock, ThumbsUp, ChevronDown, ChevronUp } from "lucide-react";
 import { useCommunityStore } from "@/lib/store/community-store";
-
+import {
+    parseAsInteger,
+    parseAsString,
+    parseAsArrayOf,
+    parseAsStringLiteral,
+    useQueryStates,
+} from "nuqs";
 interface CommunityFiltersProps {
     allTags: string[];
 }
 
 export default function CommunityFilters({ allTags }: CommunityFiltersProps) {
-    const {
-        searchQuery,
-        selectedTags,
-        sortBy,
-        setSearchQuery,
-        setSelectedTags,
-        setSortBy,
-    } = useCommunityStore();
+    const [queryParams, setQueryParams] = useQueryStates({
+        limit: parseAsInteger.withDefault(10),
+        offset: parseAsInteger.withDefault(0),
+        sort: parseAsStringLiteral(["asc", "desc"]).withDefault("desc"),
+        sortBy: parseAsStringLiteral([
+            "createdAt",
+            "updatedAt",
+            "likes",
+        ]).withDefault("createdAt"),
+        search: parseAsString,
+        tags: parseAsArrayOf(parseAsString),
+        creator_email: parseAsString,
+    });
 
     const [showAllTags, setShowAllTags] = useState(false);
     const MAX_VISIBLE_TAGS = 10;
@@ -30,10 +41,12 @@ export default function CommunityFilters({ allTags }: CommunityFiltersProps) {
     const hasMoreTags = allTags.length > MAX_VISIBLE_TAGS;
 
     const toggleTag = (tag: string) => {
-        if (selectedTags.includes(tag)) {
-            setSelectedTags(selectedTags.filter((t) => t !== tag));
+        if (queryParams.tags?.includes(tag)) {
+            setQueryParams({
+                tags: queryParams.tags?.filter((t) => t !== tag),
+            });
         } else {
-            setSelectedTags([...selectedTags, tag]);
+            setQueryParams({ tags: [...(queryParams.tags || []), tag] });
         }
     };
 
@@ -43,8 +56,10 @@ export default function CommunityFilters({ allTags }: CommunityFiltersProps) {
                 <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-zinc-500" />
                     <Input
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
+                        value={queryParams.search ?? ""}
+                        onChange={(e) =>
+                            setQueryParams({ search: e.target.value })
+                        }
                         placeholder="Search submissions..."
                         className="terminal-input pl-10 h-10 w-full"
                     />
@@ -52,10 +67,14 @@ export default function CommunityFilters({ allTags }: CommunityFiltersProps) {
 
                 <div className="flex gap-2">
                     <Button
-                        variant={sortBy === "newest" ? "default" : "outline"}
-                        onClick={() => setSortBy("newest")}
+                        variant={
+                            queryParams.sortBy === "createdAt"
+                                ? "default"
+                                : "outline"
+                        }
+                        onClick={() => setQueryParams({ sortBy: "createdAt" })}
                         className={
-                            sortBy === "newest"
+                            queryParams.sortBy === "createdAt"
                                 ? "terminal-btn-primary"
                                 : "terminal-btn"
                         }
@@ -64,10 +83,14 @@ export default function CommunityFilters({ allTags }: CommunityFiltersProps) {
                         NEWEST
                     </Button>
                     <Button
-                        variant={sortBy === "popular" ? "default" : "outline"}
-                        onClick={() => setSortBy("popular")}
+                        variant={
+                            queryParams.sortBy === "likes"
+                                ? "default"
+                                : "outline"
+                        }
+                        onClick={() => setQueryParams({ sortBy: "likes" })}
                         className={
-                            sortBy === "popular"
+                            queryParams.sortBy === "likes"
                                 ? "terminal-btn-primary"
                                 : "terminal-btn"
                         }
@@ -88,12 +111,12 @@ export default function CommunityFilters({ allTags }: CommunityFiltersProps) {
                             <Badge
                                 key={tag}
                                 variant={
-                                    selectedTags.includes(tag)
+                                    queryParams.tags?.includes(tag)
                                         ? "default"
                                         : "outline"
                                 }
                                 className={
-                                    selectedTags.includes(tag)
+                                    queryParams.tags?.includes(tag)
                                         ? "terminal-tag-selected"
                                         : "terminal-tag"
                                 }
@@ -126,10 +149,10 @@ export default function CommunityFilters({ allTags }: CommunityFiltersProps) {
                         )}
                     </div>
 
-                    {selectedTags.length > 0 && (
+                    {(queryParams.tags?.length ?? 0) > 0 && (
                         <Button
                             variant="link"
-                            onClick={() => setSelectedTags([])}
+                            onClick={() => setQueryParams({ tags: [] })}
                             className="text-xs text-zinc-500 hover:text-zinc-300 p-0 h-auto"
                         >
                             CLEAR_ALL

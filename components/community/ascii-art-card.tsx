@@ -14,10 +14,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ThumbsUp, ArrowUpRight, Plus } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import type { AsciiSubmission } from "@/lib/store/community-store";
+import type { CommunityArt } from "@/services/api/getCommunityArts";
 
 interface AsciiArtCardProps {
-    submission: AsciiSubmission;
+    submission: CommunityArt;
     onLike: () => void;
 }
 
@@ -27,10 +27,9 @@ export default function AsciiArtCard({
 }: AsciiArtCardProps) {
     const router = useRouter();
     const [isLikeAnimating, setIsLikeAnimating] = useState(false);
-    const timeAgo = formatDistanceToNow(
-        new Date(submission.metadata.createdAt),
-        { addSuffix: true }
-    );
+    const timeAgo = formatDistanceToNow(new Date(submission.createdAt), {
+        addSuffix: true,
+    });
 
     const MAX_VISIBLE_TAGS = 3;
     const visibleTags = submission.tags.slice(0, MAX_VISIBLE_TAGS);
@@ -82,13 +81,13 @@ export default function AsciiArtCard({
                                 isLikeAnimating ? "text-zinc-300" : ""
                             } transition-colors`}
                         >
-                            {submission.likes}
+                            {submission.likesCount}
                         </span>
                     </Button>
                 </CardTitle>
-                {submission.author && (
+                {submission.creatorName && (
                     <div className="text-xs text-zinc-500">
-                        by {submission.author}
+                        by {submission.creatorName}
                     </div>
                 )}
             </CardHeader>
@@ -112,7 +111,7 @@ export default function AsciiArtCard({
                             textAlign: "center",
                         }}
                     >
-                        {submission.asciiFrame}
+                        {submission.previewFrame}
                     </pre>
                 </div>
 
@@ -122,12 +121,6 @@ export default function AsciiArtCard({
                         VIEW
                     </Badge>
                 </div>
-
-                {submission.description && (
-                    <div className="p-4 pt-3 text-xs text-zinc-400 border-t border-zinc-800 line-clamp-2 group-hover:text-zinc-300 transition-colors">
-                        {submission.description}
-                    </div>
-                )}
             </CardContent>
 
             <CardFooter className="p-4 pt-3 flex flex-col items-start gap-3 border-t border-zinc-800">
