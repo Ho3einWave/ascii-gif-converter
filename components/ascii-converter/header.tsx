@@ -96,7 +96,7 @@ export default function AsciiConverterHeader({
                             </Link>
                         )} */}
 
-                        <div className="pt-2">
+                        <div className="pt-2 flex  gap-2 flex-wrap ">
                             {children} <SignInButton />
                         </div>
                     </div>

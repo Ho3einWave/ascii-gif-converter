@@ -37,6 +37,7 @@ interface AsciiConverterState {
     setIsSubmitModalOpen: (isOpen: boolean) => void;
 
     processGif: () => Promise<void>;
+    reset: () => void;
 }
 
 export const useAsciiConverterStore = create<AsciiConverterState>(
@@ -75,15 +76,26 @@ export const useAsciiConverterStore = create<AsciiConverterState>(
         setHeight: (height) => set({ height }),
         setFontSize: (fontSize) => set({ fontSize }),
         setFps: (fps) => set({ fps }),
-        toggleInvert: () => set((state) => ({ invert: !state.invert })),
-        setInvert: (invert) => set({ invert }),
+        toggleInvert: () => {
+            set((state) => ({ invert: !state.invert }));
+            const { gifFile, processGif } = get();
+            if (gifFile) {
+                processGif();
+            }
+        },
+        setInvert: (invert) => {
+            set({ invert });
+            const { gifFile, processGif } = get();
+            if (gifFile) {
+                processGif();
+            }
+        },
 
         setIsSubmitModalOpen: (isOpen) => set({ isSubmitModalOpen: isOpen }),
 
         processGif: async () => {
             const { gifFile, width, height, asciiChars, invert } = get();
             if (!gifFile) return;
-
             const processedFrames = await processGifImage(
                 gifFile,
                 width,
@@ -96,6 +108,12 @@ export const useAsciiConverterStore = create<AsciiConverterState>(
                 frames: processedFrames,
                 currentFrame: 0,
                 isPlaying: true,
+            });
+        },
+        reset: () => {
+            set({
+                gifFile: null,
+                frames: [],
             });
         },
     })

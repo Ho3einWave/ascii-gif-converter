@@ -1,10 +1,10 @@
 "use server";
 
 import { auth } from "@/auth";
+import { createArt } from "../api/createArt";
 
 export type SubmitArtProps = {
     title: string;
-    description: string;
     tags: string[];
     asciiFrame: string[];
     metadata: {
@@ -20,9 +20,7 @@ export type SubmitArtProps = {
 type SubmitArtSuccess = {
     success: true;
     message: string;
-    data: {
-        id: string;
-    };
+    id: string;
 };
 
 type SubmitArtError = {
@@ -34,7 +32,6 @@ export type SubmitArtResult = SubmitArtSuccess | SubmitArtError;
 
 export async function submitArt({
     title,
-    description,
     tags,
     asciiFrame,
     metadata,
@@ -47,11 +44,24 @@ export async function submitArt({
         } satisfies SubmitArtError;
     }
 
+    const response = await createArt({
+        title,
+        tags,
+        asciiFrame,
+        metadata,
+        creator_email: session.user.email,
+    });
+
+    if (!response.status) {
+        return {
+            success: false,
+            message: response.message,
+        } satisfies SubmitArtError;
+    }
+
     return {
         success: true,
         message: "Art submitted successfully",
-        data: {
-            id: "123",
-        },
+        id: response.id!,
     } satisfies SubmitArtSuccess;
 }

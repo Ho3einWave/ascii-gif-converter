@@ -14,8 +14,6 @@ export async function processGifImage(
     const gif = parseGIF(arrayBuffer);
     const decodedFrames = decompressFrames(gif, true);
 
-    console.log("Decoded Frames: ", decodedFrames);
-
     const asciiFrames = decodedFrames.map((frame) =>
         imageToAscii(width, height, asciiChars, invert, frame)
     );
@@ -32,7 +30,6 @@ export function imageToAscii(
 ): string {
     // Calculate aspect ratio
     // Calculate aspect ratio
-    console.log(frame);
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d")!;
     canvas.width = frame.dims.width;

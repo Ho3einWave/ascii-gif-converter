@@ -36,14 +36,21 @@ interface SubmitModalProps {
 
 const formSchema = z.object({
     title: z.string().min(1, "Title is required").max(MAX_TITLE_LENGTH),
-    description: z.string().max(MAX_DESCRIPTION_LENGTH).optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 export default function SubmitModal({ isOpen, onClose }: SubmitModalProps) {
-    const { frames, currentFrame, fps, width, height, asciiChars, invert } =
-        useAsciiConverterStore();
+    const {
+        frames,
+        currentFrame,
+        fps,
+        width,
+        height,
+        asciiChars,
+        invert,
+        reset,
+    } = useAsciiConverterStore();
     const router = useRouter();
     const [tagInput, setTagInput] = useState("");
     const [tags, setTags] = useState<string[]>([]);
@@ -52,7 +59,6 @@ export default function SubmitModal({ isOpen, onClose }: SubmitModalProps) {
         resolver: zodResolver(formSchema),
         defaultValues: {
             title: "",
-            description: "",
         },
     });
 
@@ -63,6 +69,7 @@ export default function SubmitModal({ isOpen, onClose }: SubmitModalProps) {
                 onClose();
                 form.reset();
                 setTags([]);
+                reset();
                 router.push("/community");
             } else {
                 toast.error(data.message);
@@ -99,7 +106,6 @@ export default function SubmitModal({ isOpen, onClose }: SubmitModalProps) {
 
         const submission = {
             title: data.title.trim(),
-            description: data.description?.trim() || "",
             tags,
             asciiFrame: frames,
             metadata: {
@@ -112,17 +118,7 @@ export default function SubmitModal({ isOpen, onClose }: SubmitModalProps) {
             },
         };
 
-        // Add to store
-        console.log(submission);
-
         submitArt(submission);
-
-        // onClose();
-
-        // // Reset form
-
-        // // Navigate to community page
-        // router.push("/community");
     };
 
     return (
@@ -169,31 +165,6 @@ export default function SubmitModal({ isOpen, onClose }: SubmitModalProps) {
                                 </div>
                             )}
                         </div>
-                    </div>
-
-                    <div className="grid gap-2">
-                        <div className="flex justify-between items-center">
-                            <Label
-                                htmlFor="description"
-                                className="text-xs text-zinc-400 font-bold"
-                            >
-                                DESCRIPTION{" "}
-                                <span className="text-zinc-500">
-                                    (OPTIONAL)
-                                </span>
-                            </Label>
-                            <span className="text-xs text-zinc-500">
-                                {form.watch("description")?.length || 0}/
-                                {MAX_DESCRIPTION_LENGTH}
-                            </span>
-                        </div>
-                        <Textarea
-                            id="description"
-                            {...form.register("description")}
-                            className="bg-zinc-800 border-zinc-700 text-zinc-100 rounded-none min-h-[80px]"
-                            placeholder="Tell the community about your ASCII art"
-                            maxLength={MAX_DESCRIPTION_LENGTH}
-                        />
                     </div>
 
                     <div className="grid gap-2">

@@ -1,3 +1,5 @@
+import { createUser } from "@/services/api/createUser";
+import httpClient from "@/services/httpClient";
 import NextAuth from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 
@@ -6,7 +8,6 @@ const github = GithubProvider({
     clientSecret: process.env.GITHUB_SECRET,
 
     profile: (profile) => {
-        console.log("profile github", profile);
         return {
             id: profile.id.toString(),
             name: profile.name || profile.login,
@@ -20,6 +21,10 @@ const github = GithubProvider({
 export const { handlers, signIn, signOut, auth } = NextAuth({
     providers: [github],
     callbacks: {
+        async signIn({ user }) {
+            await createUser(user);
+            return true;
+        },
         async session({ session, token }) {
             if (token) {
                 session.user.id = token.id as string;
@@ -30,7 +35,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
             return session;
         },
-        jwt({ token, user, account }) {
+        jwt({ token, user }) {
             if (user) {
                 token.id = user.id;
                 token.name = user.name;
