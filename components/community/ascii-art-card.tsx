@@ -23,7 +23,6 @@ import { cn } from "@/lib/utils";
 import { useUnlikeArt } from "@/hooks/community/useUnlikeArt";
 interface AsciiArtCardProps {
     submission: CommunityArt;
-    onLike: () => void;
 }
 
 export default function AsciiArtCard({ submission }: AsciiArtCardProps) {

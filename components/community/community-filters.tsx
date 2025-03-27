@@ -19,8 +19,8 @@ interface CommunityFiltersProps {
 
 export default function CommunityFilters({ allTags }: CommunityFiltersProps) {
     const [queryParams, setQueryParams] = useQueryStates({
-        limit: parseAsInteger.withDefault(10),
-        offset: parseAsInteger.withDefault(0),
+        limit: parseAsInteger.withDefault(9),
+        offset: parseAsInteger.withDefault(1),
         sort: parseAsStringLiteral(["asc", "desc"]).withDefault("desc"),
         sortBy: parseAsStringLiteral([
             "createdAt",

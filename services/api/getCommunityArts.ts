@@ -32,6 +32,8 @@ export interface Metadata {
 
 export type GetCommunityArtsResponse = {
     data: CommunityArt[];
+    totalCount: number;
+    totalPages: number;
     success: boolean;
 };
 

@@ -54,13 +54,15 @@ export default function SignInButton() {
                     </>
                 )}
             </Button>
-            <Button
-                variant="outline"
-                className="h-8 bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 rounded-none"
-                onClick={handleSignOut}
-            >
-                <LogOut className="h-4 w-4 ml-1" />
-            </Button>
+            {session && (
+                <Button
+                    variant="outline"
+                    className="h-8 bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 rounded-none"
+                    onClick={handleSignOut}
+                >
+                    <LogOut className="h-4 w-4 ml-1" />
+                </Button>
+            )}
         </>
     );
 }

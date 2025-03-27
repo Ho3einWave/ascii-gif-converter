@@ -102,7 +102,7 @@ export default function SlidersSection() {
                     </div>
                     <Slider
                         value={[localFontSize]}
-                        min={4}
+                        min={2}
                         max={16}
                         step={1}
                         onValueChange={(value) => setLocalFontSize(value[0])}
@@ -123,7 +123,7 @@ export default function SlidersSection() {
                     <Slider
                         value={[localFps]}
                         min={1}
-                        max={30}
+                        max={60}
                         step={1}
                         onValueChange={(value) => setLocalFps(value[0])}
                         onValueCommit={handleFpsCommit}

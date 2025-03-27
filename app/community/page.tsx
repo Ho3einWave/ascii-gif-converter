@@ -17,11 +17,12 @@ import {
 } from "nuqs";
 import useGetAsciiArts from "@/hooks/community/useGetAsciiArts";
 import { useGetAllTags } from "@/hooks/community/useGetAllTags";
+import Pagination from "@/components/community/pagination";
 
 export default function CommunityPage() {
     const [queryParams, setQueryParams] = useQueryStates({
-        limit: parseAsInteger.withDefault(10),
-        offset: parseAsInteger.withDefault(0),
+        limit: parseAsInteger.withDefault(9),
+        offset: parseAsInteger.withDefault(1),
         sort: parseAsStringLiteral(["asc", "desc"]).withDefault("desc"),
         sortBy: parseAsStringLiteral([
             "createdAt",
@@ -33,13 +34,10 @@ export default function CommunityPage() {
         creator_email: parseAsString,
     });
 
-    console.log(queryParams);
+    const handlePageChange = (page: number) => {
+        setQueryParams({ offset: page });
+    };
 
-    const { loadSubmissions, likeSubmission } = useCommunityStore();
-
-    useEffect(() => {
-        loadSubmissions();
-    }, [loadSubmissions]);
     const { data: allTags } = useGetAllTags();
     console.log(allTags);
     const { data: submissions, isLoading } = useGetAsciiArts(queryParams);
@@ -68,8 +66,8 @@ export default function CommunityPage() {
                         </h1>
                     </div>
                     <div className="text-xs text-zinc-500">
-                        {submissions?.length}{" "}
-                        {submissions?.length === 1
+                        {submissions?.data?.length}{" "}
+                        {submissions?.data?.length === 1
                             ? "SUBMISSION"
                             : "SUBMISSIONS"}
                     </div>
@@ -77,17 +75,17 @@ export default function CommunityPage() {
 
                 <CommunityFilters allTags={allTags || []} />
 
-                {submissions?.length === 0 ? (
+                {submissions?.data?.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-[400px] text-zinc-500 border border-zinc-800 p-8">
                         <div className="text-center mb-2 font-bold">
                             NO_SUBMISSIONS_FOUND
                         </div>
                         <div className="text-xs text-center max-w-md">
-                            {submissions?.length === 0
+                            {submissions?.data?.length === 0
                                 ? "Be the first to submit your ASCII art to the community!"
                                 : "No submissions match your current filters. Try adjusting your search or filters."}
                         </div>
-                        {submissions?.length === 0 && (
+                        {submissions.data?.length === 0 && (
                             <Link href="/" className="mt-4">
                                 <Button className="terminal-btn">
                                     CREATE_ASCII_ART
@@ -97,15 +95,35 @@ export default function CommunityPage() {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {submissions?.map((submission, index) => (
+                        {submissions?.data?.map((submission, index) => (
                             <AsciiArtCard
                                 key={`${submission.title}-${index}`}
                                 submission={submission}
-                                onLike={() => likeSubmission(index)}
                             />
                         ))}
                     </div>
                 )}
+                {(submissions?.totalCount ?? 0) > queryParams.limit && (
+                    <Pagination
+                        currentPage={queryParams.offset}
+                        totalPages={submissions?.totalPages ?? 0}
+                        onPageChange={handlePageChange}
+                    />
+                )}
+
+                <div className="text-center text-xs text-zinc-500 mt-2">
+                    Showing{" "}
+                    {Math.min(
+                        submissions?.totalCount ?? 0,
+                        (queryParams.offset - 1) * queryParams.limit + 1
+                    )}
+                    -
+                    {Math.min(
+                        submissions?.totalCount ?? 0,
+                        queryParams.offset * queryParams.limit
+                    )}{" "}
+                    of {submissions?.totalCount} submissions
+                </div>
             </main>
         </div>
     );

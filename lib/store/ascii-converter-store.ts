@@ -52,7 +52,7 @@ export const useAsciiConverterStore = create<AsciiConverterState>(
         width: 40,
         height: 40,
         fontSize: 8,
-        fps: 10,
+        fps: 20,
         invert: false,
 
         isSubmitModalOpen: false,
