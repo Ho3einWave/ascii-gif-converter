@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { getCodeSnippet } from "@/lib/ascii-converter/code-generator";
 import { formatDistanceToNow, format } from "date-fns";
-import { ASCIIArt } from "@/services/api/getArtById";
+import { ASCIIArt } from "@/types/ascii-art";
 import { AsciiPreview } from "@/components/ascii-converter/ascii-preview";
 import { useLikeArt } from "@/hooks/community/useLikeArt";
 import { useUnlikeArt } from "@/hooks/community/useUnlikeArt";

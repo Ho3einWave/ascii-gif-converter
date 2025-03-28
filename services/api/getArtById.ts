@@ -1,3 +1,4 @@
+import { ASCIIArt } from "@/types/ascii-art";
 import httpClient from "../httpClient";
 
 export type GetArtByIdSuccessResponse = {
@@ -13,29 +14,6 @@ export type GetArtByIdErrorResponse = {
 export type GetArtByIdResponse =
     | GetArtByIdSuccessResponse
     | GetArtByIdErrorResponse;
-
-export interface ASCIIArt {
-    metadata: Metadata;
-    id: string;
-    title: string;
-    tags: string[];
-    asciiFrame: string[];
-    previewFrame: string;
-    likesCount: number;
-    creator: string;
-    createdAt: Date;
-    updatedAt: Date;
-    creatorName: string;
-    creatorImage: string;
-}
-
-export interface Metadata {
-    fps: number;
-    width: number;
-    height: number;
-    asciiChars: string;
-    invert: boolean;
-}
 
 export const getArtById = async (id: string): Promise<GetArtByIdResponse> => {
     try {

@@ -35,7 +35,7 @@ export default function CommunityPage() {
     });
 
     const handlePageChange = (page: number) => {
-        setQueryParams({ offset: page });
+        setQueryParams({ offset: page }, { history: "push" });
     };
 
     const { data: allTags } = useGetAllTags();

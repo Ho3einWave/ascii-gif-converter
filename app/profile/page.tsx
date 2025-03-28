@@ -35,10 +35,13 @@ import {
 import { useCommunityStore } from "@/lib/store/community-store";
 import { format } from "date-fns";
 import Link from "next/link";
+import { useGetUserArts } from "@/hooks/profile/use-get-user-arts";
 
 export default function ProfilePage() {
     const router = useRouter();
 
+    const { data: userArts } = useGetUserArts();
+    console.log(userArts);
     const [deleteId, setDeleteId] = useState<string | null>(null);
     const [isAlertOpen, setIsAlertOpen] = useState(false);
 
@@ -93,7 +96,7 @@ export default function ProfilePage() {
                     </div>
                 </div>
 
-                {[].length === 0 ? (
+                {userArts?.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-[300px] text-zinc-500 border border-zinc-800 p-8">
                         <div className="text-center mb-2 font-bold">
                             NO_SUBMISSIONS_FOUND
@@ -111,7 +114,7 @@ export default function ProfilePage() {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* {[].map((submission) => (
+                        {userArts?.map((submission) => (
                             <Card
                                 key={submission.id}
                                 className="bg-zinc-900 border-zinc-800 rounded-none hover:border-zinc-700 transition-colors"
@@ -124,9 +127,7 @@ export default function ProfilePage() {
                                         <div className="flex items-center text-xs text-zinc-500 mt-1">
                                             <Calendar className="h-3.5 w-3.5 mr-1" />
                                             {format(
-                                                new Date(
-                                                    submission.metadata.createdAt
-                                                ),
+                                                new Date(submission.createdAt),
                                                 "PPP"
                                             )}
                                         </div>
@@ -134,7 +135,7 @@ export default function ProfilePage() {
                                     <div className="flex items-center gap-2">
                                         <Badge className="bg-zinc-800 text-zinc-400 text-xs rounded-none">
                                             <ThumbsUp className="h-3 w-3 mr-1" />
-                                            {submission.likes}
+                                            {submission.likesCount}
                                         </Badge>
                                         <Button
                                             variant="ghost"
@@ -176,15 +177,10 @@ export default function ProfilePage() {
                                                 textAlign: "center",
                                             }}
                                         >
-                                            {submission.asciiFrame}
+                                            {submission.previewFrame}
                                         </pre>
                                     </div>
                                     <div className="p-4 sm:w-2/3">
-                                        {submission.description && (
-                                            <p className="text-xs text-zinc-400 mb-3 line-clamp-2">
-                                                {submission.description}
-                                            </p>
-                                        )}
                                         <div className="flex flex-wrap gap-1 mb-3">
                                             {submission.tags.map((tag) => (
                                                 <Badge
@@ -220,7 +216,7 @@ export default function ProfilePage() {
                                     </Button>
                                 </CardFooter>
                             </Card>
-                        ))} */}
+                        ))}
                     </div>
                 )}
             </main>

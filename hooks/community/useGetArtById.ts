@@ -1,8 +1,5 @@
-import {
-    ASCIIArt,
-    getArtById,
-    GetArtByIdResponse,
-} from "@/services/api/getArtById";
+import { getArtById, GetArtByIdResponse } from "@/services/api/getArtById";
+import { ASCIIArt } from "@/types/ascii-art";
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 
 export const useGetArtById = (
