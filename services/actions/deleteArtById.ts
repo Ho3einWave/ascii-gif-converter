@@ -2,9 +2,7 @@
 
 import { auth } from "@/auth";
 import httpClient from "../httpClient";
-import { ASCIIArtPreview } from "@/types/ascii-art";
 import { isAxiosError } from "axios";
-
 type GetUserArtsError = {
     success: false;
     message: string;
@@ -12,36 +10,29 @@ type GetUserArtsError = {
 
 type GetUserArtsSuccess = {
     success: true;
-    data: ASCIIArtPreview[];
+    message: string;
+    id: string;
 };
 
 type GetUserArtsResponse = GetUserArtsError | GetUserArtsSuccess;
-
-export const getUserArts = async (): Promise<GetUserArtsResponse> => {
+export const deleteArtById = async (
+    id: string
+): Promise<GetUserArtsResponse> => {
     const session = await auth();
     if (!session) {
-        return {
-            success: false,
-            message: "Unauthorized",
-        };
+        return { success: false, message: "Unauthorized" };
     }
 
     try {
-        const res = await httpClient.get<GetUserArtsResponse>(
-            "/v1/ascii-art/get-user-arts",
+        const res = await httpClient.post<GetUserArtsResponse>(
+            "/v1/ascii-art/delete-ascii-art",
             {
-                params: {
-                    email: session.user.email,
-                },
+                email: session.user.email,
+                id,
             }
         );
 
-        if (res.data.success) {
-            console.log(JSON.stringify(res.data.data));
-            return { success: true, data: res.data.data };
-        } else {
-            return { success: false, message: res.data.message };
-        }
+        return res.data;
     } catch (error) {
         if (isAxiosError(error)) {
             return {

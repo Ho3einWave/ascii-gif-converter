@@ -32,16 +32,15 @@ import {
     Users,
     ArrowLeft,
 } from "lucide-react";
-import { useCommunityStore } from "@/lib/store/community-store";
 import { format } from "date-fns";
 import Link from "next/link";
-import { useGetUserArts } from "@/hooks/profile/use-get-user-arts";
+import { useGetUserArts } from "@/hooks/profile/useGetUserArts";
+import { useDeleteArtById } from "@/hooks/profile/useDeleteArtById";
 
 export default function ProfilePage() {
     const router = useRouter();
-
+    const { mutateAsync: deleteArt } = useDeleteArtById();
     const { data: userArts } = useGetUserArts();
-    console.log(userArts);
     const [deleteId, setDeleteId] = useState<string | null>(null);
     const [isAlertOpen, setIsAlertOpen] = useState(false);
 
@@ -53,6 +52,7 @@ export default function ProfilePage() {
     const confirmDelete = () => {
         if (deleteId) {
             setDeleteId(null);
+            deleteArt(deleteId);
         }
         setIsAlertOpen(false);
     };
