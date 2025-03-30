@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import AsciiConverterHeader from "@/components/ascii-converter/header";
 import { Button } from "@/components/ui/button";
@@ -102,7 +102,8 @@ export default function ProfilePage() {
                             NO_SUBMISSIONS_FOUND
                         </div>
                         <div className="text-xs text-center max-w-md mb-4">
-                            You haven't created any ASCII art submissions yet.
+                            You haven&apos;t created any ASCII art submissions
+                            yet.
                         </div>
                         <Button
                             onClick={() => router.push("/")}

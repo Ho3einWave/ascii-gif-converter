@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import Link from "next/link";
 import AsciiConverterHeader from "@/components/ascii-converter/header";
 import CommunityFilters from "@/components/community/community-filters";
