@@ -8,7 +8,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <html lang="en" className="dark">
+        <html lang="en">
             <body>
                 <Providers>{children}</Providers>
             </body>
@@ -16,8 +16,7 @@ export default function RootLayout({
     );
 }
 
-import "../styles/globals.css";
-
 export const metadata = {
-    generator: "v0.dev",
+    title: "ASCII Art Converter",
+    description: "Convert images to ASCII art",
 };
