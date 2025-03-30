@@ -10,6 +10,7 @@ import { Upload, Play, Pause, RefreshCw, AlertCircle } from "lucide-react";
 import { useAsciiConverterStore } from "@/lib/store/ascii-converter-store";
 import { useState } from "react";
 import HelpModal from "./help-modal";
+import { toast } from "sonner";
 
 interface ControlsSectionProps {
     fileInputRef: React.RefObject<HTMLInputElement>;
@@ -34,10 +35,19 @@ export default function ControlsSection({
     } = useAsciiConverterStore();
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        console.log(e.target.files);
         const file = e.target.files?.[0];
         if (file && file.type === "image/gif") {
             setGifFile(file);
             processGif();
+        } else {
+            toast.error("Please upload a valid GIF file");
+        }
+    };
+
+    const handleClearInput = () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
         }
     };
 
@@ -56,6 +66,7 @@ export default function ControlsSection({
                         id="file-upload"
                         type="file"
                         accept="image/gif"
+                        onClick={handleClearInput}
                         onChange={handleFileChange}
                         className="hidden"
                     />

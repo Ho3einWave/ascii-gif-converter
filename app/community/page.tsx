@@ -5,42 +5,29 @@ import Link from "next/link";
 import AsciiConverterHeader from "@/components/ascii-converter/header";
 import CommunityFilters from "@/components/community/community-filters";
 import AsciiArtCard from "@/components/community/ascii-art-card";
+import AsciiArtSkeleton from "@/components/community/ascii-art-skeleton";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Terminal } from "lucide-react";
-import { useCommunityStore } from "@/lib/store/community-store";
-import {
-    parseAsInteger,
-    parseAsString,
-    parseAsArrayOf,
-    parseAsStringLiteral,
-    useQueryStates,
-} from "nuqs";
 import useGetAsciiArts from "@/hooks/community/useGetAsciiArts";
 import { useGetAllTags } from "@/hooks/community/useGetAllTags";
 import Pagination from "@/components/community/pagination";
+import { useQueryParams } from "@/hooks/community/useQueryParams";
 
 export default function CommunityPage() {
-    const [queryParams, setQueryParams] = useQueryStates({
-        limit: parseAsInteger.withDefault(9),
-        offset: parseAsInteger.withDefault(1),
-        sort: parseAsStringLiteral(["asc", "desc"]).withDefault("desc"),
-        sortBy: parseAsStringLiteral([
-            "createdAt",
-            "updatedAt",
-            "likes",
-        ]).withDefault("createdAt"),
-        search: parseAsString,
-        tags: parseAsArrayOf(parseAsString),
-        creator_email: parseAsString,
-    });
+    const [queryParams, setQueryParams] = useQueryParams();
 
     const handlePageChange = (page: number) => {
+        console.log(page, "scroll");
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+        });
         setQueryParams({ offset: page }, { history: "push" });
     };
 
-    const { data: allTags } = useGetAllTags();
-    console.log(allTags);
-    const { data: submissions, isLoading } = useGetAsciiArts(queryParams);
+    const { data: allTags, isLoading: isTagsLoading } = useGetAllTags();
+    const { data: submissions, isFetching: isSubmissionsLoading } =
+        useGetAsciiArts(queryParams);
 
     return (
         <div className="min-h-screen bg-zinc-950 text-zinc-100 font-mono">
@@ -57,7 +44,7 @@ export default function CommunityPage() {
                 </Link>
             </AsciiConverterHeader>
 
-            <main className="max-w-6xl mx-auto p-4">
+            <main className="max-w-6xl mx-auto p-4" id="community-page">
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-2">
                         <Terminal className="h-5 w-5 text-zinc-400" />
@@ -73,9 +60,12 @@ export default function CommunityPage() {
                     </div>
                 </div>
 
-                <CommunityFilters allTags={allTags || []} />
+                <CommunityFilters
+                    allTags={allTags || []}
+                    isLoading={isTagsLoading}
+                />
 
-                {submissions?.data?.length === 0 ? (
+                {!isSubmissionsLoading && submissions?.data?.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-[400px] text-zinc-500 border border-zinc-800 p-8">
                         <div className="text-center mb-2 font-bold">
                             NO_SUBMISSIONS_FOUND
@@ -95,35 +85,46 @@ export default function CommunityPage() {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {submissions?.data?.map((submission, index) => (
-                            <AsciiArtCard
-                                key={`${submission.title}-${index}`}
-                                submission={submission}
-                            />
-                        ))}
+                        {isSubmissionsLoading
+                            ? Array(9)
+                                  .fill(0)
+                                  .map((_, index) => (
+                                      <AsciiArtSkeleton
+                                          key={`skeleton-${index}`}
+                                      />
+                                  ))
+                            : submissions?.data?.map((submission, index) => (
+                                  <AsciiArtCard
+                                      key={`${submission.title}-${index}`}
+                                      submission={submission}
+                                  />
+                              ))}
                     </div>
                 )}
-                {(submissions?.totalCount ?? 0) > queryParams.limit && (
-                    <Pagination
-                        currentPage={queryParams.offset}
-                        totalPages={submissions?.totalPages ?? 0}
-                        onPageChange={handlePageChange}
-                    />
-                )}
-
-                <div className="text-center text-xs text-zinc-500 mt-2">
-                    Showing{" "}
-                    {Math.min(
-                        submissions?.totalCount ?? 0,
-                        (queryParams.offset - 1) * queryParams.limit + 1
+                {!isSubmissionsLoading &&
+                    (submissions?.totalCount ?? 0) > queryParams.limit && (
+                        <Pagination
+                            currentPage={queryParams.offset}
+                            totalPages={submissions?.totalPages ?? 0}
+                            onPageChange={handlePageChange}
+                        />
                     )}
-                    -
-                    {Math.min(
-                        submissions?.totalCount ?? 0,
-                        queryParams.offset * queryParams.limit
-                    )}{" "}
-                    of {submissions?.totalCount} submissions
-                </div>
+
+                {!isSubmissionsLoading && (
+                    <div className="text-center text-xs text-zinc-500 mt-2">
+                        Showing{" "}
+                        {Math.min(
+                            submissions?.totalCount ?? 0,
+                            (queryParams.offset - 1) * queryParams.limit + 1
+                        )}
+                        -
+                        {Math.min(
+                            submissions?.totalCount ?? 0,
+                            queryParams.offset * queryParams.limit
+                        )}{" "}
+                        of {submissions?.totalCount} submissions
+                    </div>
+                )}
             </main>
         </div>
     );

@@ -2,10 +2,8 @@
 
 import type React from "react";
 import { useState } from "react";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Users, ArrowLeft } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { Menu, X } from "lucide-react";
 import SignInButton from "../auth/signin-button";
 
 interface AsciiConverterHeaderProps {
@@ -16,7 +14,6 @@ export default function AsciiConverterHeader({
     children,
 }: AsciiConverterHeaderProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const pathname = usePathname();
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -65,33 +62,6 @@ export default function AsciiConverterHeader({
                 {/* Mobile menu */}
                 {isMenuOpen && (
                     <div className="sm:hidden py-3 border-t border-zinc-800 mt-2 space-y-2">
-                        {/* {pathname === "/" ? (
-                            <Link
-                                href="/community"
-                                onClick={() => setIsMenuOpen(false)}
-                            >
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="terminal-btn h-8 w-full justify-start"
-                                >
-                                    <Users className="h-4 w-4 mr-2" />
-                                    COMMUNITY
-                                </Button>
-                            </Link>
-                        ) : (
-                            <Link href="/" onClick={() => setIsMenuOpen(false)}>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="terminal-btn h-8 w-full justify-start"
-                                >
-                                    <ArrowLeft className="h-4 w-4 mr-2" />
-                                    CONVERTER
-                                </Button>
-                            </Link>
-                        )} */}
-
                         <div className="pt-2 flex  gap-2 flex-wrap ">
                             {children} <SignInButton />
                         </div>

@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { useSignInModal } from "@/lib/store/signin-modal";
 import { Share2 } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { Skeleton } from "../ui/skeleton";
 
 interface SubmitToCommunityCTAProps {
     onSubmit: () => void;
@@ -14,7 +13,7 @@ export default function SubmitToCommunityCTA({
     onSubmit,
 }: SubmitToCommunityCTAProps) {
     const { setOpen } = useSignInModal();
-    const { data: session, status } = useSession();
+    const { status } = useSession();
     return (
         <div className="p-4 bg-zinc-900 border-t border-zinc-800">
             <div className="flex items-center justify-between">

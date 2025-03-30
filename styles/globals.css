@@ -103,7 +103,7 @@ input[type="range"]::-ms-thumb {
 }
 
 .terminal-tag {
-    @apply bg-zinc-800 text-zinc-400 text-xs rounded-none transition-colors duration-200 cursor-pointer hover:bg-zinc-700 hover:text-zinc-300;
+    @apply bg-zinc-800 text-zinc-400 text-xs rounded-none transition-colors duration-200 cursor-pointer hover:bg-zinc-700 hover:text-zinc-300 border border-zinc-700;
 }
 
 .terminal-tag-selected {
@@ -120,4 +120,8 @@ input[type="range"]::-ms-thumb {
 
 .terminal-card:hover {
     @apply shadow-[0_0_10px_rgba(39,39,42,0.5)];
+}
+
+.terminal-slider {
+    @apply [&>span:first-child]:h-1 [&>span:first-child]:bg-zinc-700 [&_[role=slider]]:bg-zinc-400 [&_[role=slider]]:w-3 [&_[role=slider]]:h-3 [&_[role=slider]]:border-0 [&>span:first-child_span]:bg-zinc-500;
 }

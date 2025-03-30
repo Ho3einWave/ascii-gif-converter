@@ -40,16 +40,8 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export default function SubmitModal({ isOpen, onClose }: SubmitModalProps) {
-    const {
-        frames,
-        currentFrame,
-        fps,
-        width,
-        height,
-        asciiChars,
-        invert,
-        reset,
-    } = useAsciiConverterStore();
+    const { frames, fps, width, height, asciiChars, invert, reset } =
+        useAsciiConverterStore();
     const router = useRouter();
     const [tagInput, setTagInput] = useState("");
     const [tags, setTags] = useState<string[]>([]);

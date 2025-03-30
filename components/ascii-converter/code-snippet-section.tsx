@@ -15,7 +15,7 @@ import { getCodeSnippet } from "@/lib/ascii-converter/code-generator";
 import { useAsciiConverterStore } from "@/lib/store/ascii-converter-store";
 
 export default function CodeSnippetSection() {
-    const { frames, currentFrame, fps } = useAsciiConverterStore();
+    const { frames, fps } = useAsciiConverterStore();
     const [language, setLanguage] = useState("javascript");
     const [copied, setCopied] = useState(false);
     const codeRef = useRef<HTMLTextAreaElement>(null);

@@ -67,7 +67,7 @@ export default function SlidersSection() {
                         step={1}
                         onValueChange={(value) => setLocalWidth(value[0])}
                         onValueCommit={handleWidthCommit}
-                        className="[&>span:first-child]:h-1 [&>span:first-child]:bg-zinc-700 [&_[role=slider]]:bg-zinc-400 [&_[role=slider]]:w-3 [&_[role=slider]]:h-3 [&_[role=slider]]:border-0 [&>span:first-child_span]:bg-zinc-500"
+                        className="terminal-slider"
                     />
                 </div>
 
@@ -83,11 +83,11 @@ export default function SlidersSection() {
                     <Slider
                         value={[localHeight]}
                         min={10}
-                        max={100}
+                        max={200}
                         step={1}
                         onValueChange={(value) => setLocalHeight(value[0])}
                         onValueCommit={handleHeightCommit}
-                        className="[&>span:first-child]:h-1 [&>span:first-child]:bg-zinc-700 [&_[role=slider]]:bg-zinc-400 [&_[role=slider]]:w-3 [&_[role=slider]]:h-3 [&_[role=slider]]:border-0 [&>span:first-child_span]:bg-zinc-500"
+                        className="terminal-slider"
                     />
                 </div>
 
@@ -107,7 +107,7 @@ export default function SlidersSection() {
                         step={1}
                         onValueChange={(value) => setLocalFontSize(value[0])}
                         onValueCommit={handleFontSizeCommit}
-                        className="[&>span:first-child]:h-1 [&>span:first-child]:bg-zinc-700 [&_[role=slider]]:bg-zinc-400 [&_[role=slider]]:w-3 [&_[role=slider]]:h-3 [&_[role=slider]]:border-0 [&>span:first-child_span]:bg-zinc-500"
+                        className="terminal-slider"
                     />
                 </div>
 
@@ -127,7 +127,7 @@ export default function SlidersSection() {
                         step={1}
                         onValueChange={(value) => setLocalFps(value[0])}
                         onValueCommit={handleFpsCommit}
-                        className="[&>span:first-child]:h-1 [&>span:first-child]:bg-zinc-700 [&_[role=slider]]:bg-zinc-400 [&_[role=slider]]:w-3 [&_[role=slider]]:h-3 [&_[role=slider]]:border-0 [&>span:first-child_span]:bg-zinc-500"
+                        className="terminal-slider"
                     />
                 </div>
             </div>
