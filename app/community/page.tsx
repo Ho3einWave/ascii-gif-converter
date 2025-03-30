@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Suspense } from "react";
 import AsciiConverterHeader from "@/components/ascii-converter/header";
 import CommunityFilters from "@/components/community/community-filters";
 import AsciiArtCard from "@/components/community/ascii-art-card";
@@ -12,7 +13,7 @@ import { useGetAllTags } from "@/hooks/community/useGetAllTags";
 import Pagination from "@/components/community/pagination";
 import { useQueryParams } from "@/hooks/community/useQueryParams";
 
-export default function CommunityPage() {
+function CommunityContent() {
     const [queryParams, setQueryParams] = useQueryParams();
 
     const handlePageChange = (page: number) => {
@@ -125,5 +126,47 @@ export default function CommunityPage() {
                 )}
             </main>
         </div>
+    );
+}
+
+export default function CommunityPage() {
+    return (
+        <Suspense
+            fallback={
+                <div className="min-h-screen bg-zinc-950 text-zinc-100 font-mono">
+                    <AsciiConverterHeader>
+                        <Link href="/">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="terminal-btn h-8"
+                            >
+                                <ArrowLeft className="h-4 w-4 mr-2" />
+                                CONVERTER
+                            </Button>
+                        </Link>
+                    </AsciiConverterHeader>
+                    <main className="max-w-6xl mx-auto p-4">
+                        <div className="flex items-center gap-2 mb-6">
+                            <Terminal className="h-5 w-5 text-zinc-400" />
+                            <h1 className="text-xl font-bold text-zinc-100">
+                                ASCII_ART_COMMUNITY
+                            </h1>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {Array(9)
+                                .fill(0)
+                                .map((_, index) => (
+                                    <AsciiArtSkeleton
+                                        key={`skeleton-${index}`}
+                                    />
+                                ))}
+                        </div>
+                    </main>
+                </div>
+            }
+        >
+            <CommunityContent />
+        </Suspense>
     );
 }
