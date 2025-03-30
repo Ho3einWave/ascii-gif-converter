@@ -10,10 +10,8 @@ export const useUserLikes = () => {
         queryFn: async () => {
             const response = await getUserLikes();
             if (response.success) {
-                console.log("response.data 1", response.data);
                 return response.data;
             } else {
-                console.log("response.data 2", response.data);
                 return [];
             }
         },

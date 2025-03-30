@@ -16,7 +16,6 @@ export default function useGetAsciiArts(queryParams: GetCommunityArtsParams) {
         ],
         queryFn: async () => {
             const res = await getCommunityArts(queryParams);
-            console.log(res);
             return res;
         },
         staleTime: 5000,

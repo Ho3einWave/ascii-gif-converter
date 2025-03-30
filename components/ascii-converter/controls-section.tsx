@@ -35,7 +35,6 @@ export default function ControlsSection({
     } = useAsciiConverterStore();
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        console.log(e.target.files);
         const file = e.target.files?.[0];
         if (file && file.type === "image/gif") {
             setGifFile(file);

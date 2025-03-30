@@ -45,15 +45,11 @@ export default function AsciiArtCard({ submission }: AsciiArtCardProps) {
     };
 
     const handleLikeClick = (e: React.MouseEvent) => {
-        console.log("handleLikeClick");
         e.stopPropagation();
         if (status === "authenticated") {
-            console.log("authenticated");
             if (isLiked) {
-                console.log("unlikeArt");
                 unlikeArt(submission.id);
             } else {
-                console.log("likeArt");
                 likeArt(submission.id);
             }
         } else {

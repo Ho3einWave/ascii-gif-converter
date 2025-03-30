@@ -9,7 +9,6 @@ export const useUnlikeArt = () => {
             queryClient.refetchQueries({ queryKey: ["user-likes"] });
             queryClient.refetchQueries({ queryKey: ["ascii-arts"] });
             queryClient.refetchQueries({ queryKey: ["art"] });
-            console.log("refetched");
         },
     });
 };

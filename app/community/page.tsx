@@ -16,7 +16,6 @@ export default function CommunityPage() {
     const [queryParams, setQueryParams] = useQueryParams();
 
     const handlePageChange = (page: number) => {
-        console.log(page, "scroll");
         window.scrollTo({
             top: 0,
             behavior: "smooth",

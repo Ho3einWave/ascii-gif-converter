@@ -37,7 +37,6 @@ export const getUserArts = async (): Promise<GetUserArtsResponse> => {
         );
 
         if (res.data.success) {
-            console.log(JSON.stringify(res.data.data));
             return { success: true, data: res.data.data };
         } else {
             return { success: false, message: res.data.message };
