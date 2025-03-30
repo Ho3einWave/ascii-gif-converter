@@ -208,7 +208,9 @@ export default function ProfilePage() {
                                         variant="ghost"
                                         size="sm"
                                         onClick={() =>
-                                            router.push(`/art/${submission.id}`)
+                                            router.push(
+                                                `/community/art/${submission.id}`
+                                            )
                                         }
                                         className="h-8 text-xs text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 rounded-none ml-auto"
                                     >
